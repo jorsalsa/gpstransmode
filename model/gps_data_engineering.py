@@ -16,7 +16,7 @@ import pandas as pd
 import datetime
 import math
 import csv
-from geopy.distance import vincenty
+from geopy.distance import geodesic 
 
 # ================================================================
 # Constants definition
@@ -68,7 +68,7 @@ class GpsDataEngineering(object):
         PointA: tupple (latitude, longitude)
         PointB: tupple (latitude, longitude)
         """
-        return vincenty(pointA, pointB).meters
+        return geodesic(pointA, pointB).meters
         
     def calculate_initial_compass_bearing(self, pointA, pointB):
         """
@@ -151,7 +151,7 @@ class GpsDataEngineering(object):
         
             # First index for the segment
             first_segment_index = pd_segment.index[0]
-            print "Segment ", str(cnt), ": ", seg_id, " starting at index ", first_segment_index
+            print ("Segment ", str(cnt), ": ", seg_id, " starting at index ", first_segment_index)
             
             # Create lists to contain data calculations
             distance_delta =[]
@@ -213,7 +213,7 @@ class GpsDataEngineering(object):
                 # If this happen, we will just adjust delta time to 1 second
                 if t_delta == 0:
                     t_delta = 1
-                    print "Delta time adjusted to 1 second sice two adjacent points with same time stamp at", row["time"]
+                    print ("Delta time adjusted to 1 second sice two adjacent points with same time stamp at", row["time"])
                     
                 time_delta.append(t_delta)
         
@@ -228,7 +228,7 @@ class GpsDataEngineering(object):
                 try:
                     v_delta = d_delta/float(t_delta)
                 except:
-                    print "Div By 0 at: SegID | Timestamp | Time | DDelta |  TDelta", seg_id, row[TIMESTAMP_STR], row[TIME_STR], d_delta, t_delta
+                    print( "Div By 0 at: SegID | Timestamp | Time | DDelta |  TDelta", seg_id, row[TIMESTAMP_STR], row[TIME_STR], d_delta, t_delta)
                     
                 velocity_delta.append(v_delta)
                 
