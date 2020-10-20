@@ -16,7 +16,6 @@ import os
 import os.path
 import datetime
 import csv
-
 # ================================================================
 # Constants definition
 # ================================================================
@@ -121,7 +120,7 @@ class LabelProcessing(object):
             for filename in [f for f in filenames if f.startswith(LABELS_STR)]:
                 df_temp = pd.read_csv(os.path.join(dirpath, filename),sep = None, header = 0)
                 self.df_labels = self.df_labels.append(df_temp, ignore_index = True)
-                for i in xrange(len(df_temp)): directory.append(dirpath)
+                for i in range(len(df_temp)): directory.append(dirpath)
         
         # Update the column directory at once with the list (higher performant code)
         self.df_labels[DIRECTORY_STR]= directory
@@ -208,7 +207,7 @@ class LabelProcessing(object):
         """
 
         # Create CSV file if it does not exist        
-        with open(file_struct_path, 'wb') as csvfile:
+        with open(file_struct_path, 'w') as csvfile:
             fts_writer = csv.writer(csvfile, delimiter=',')
             fts_writer.writerow([DIRECTORY_STR, FILENAME_STR, START_TIMESTAMP_STR, END_TIMESTAMP_STR])
 
@@ -239,13 +238,23 @@ class LabelProcessing(object):
                     start = self.dt_to_timestamp_since_epoch(f_gps[5][0] +  " " + f_gps[6][0],YMDHMS_FORMAT2_STR)
                     end = self.dt_to_timestamp_since_epoch(f_gps[5][len(f_gps)-1] +  " " + f_gps[6][len(f_gps)-1], YMDHMS_FORMAT2_STR)
         
-                    print str(tot_cnt), str(cnt) + "\t" + directory + ":\t", filegps, start, end, "total points: ", len(f_gps)
+                    print (str(tot_cnt), str(cnt) + "\t" + directory + ":\t", filegps, start, end, "total points: ", len(f_gps))
                     tot_gps += len(f_gps)
         
                     # Write CSV row
                     fts_writer.writerow([directory, filegps, start, end])
         
-        print "Total GPS points to search: ", tot_gps        
+        print( "Total GPS points to search: ", tot_gps  )      
+
+    
+
+    def create_gps_points_master_(self, file_gps_path, file_struct_path):
+        df_files_info = pd.read_csv(file_struct_path)
+        
+        # Search each labeled segment for its corresponsing GPS data
+        # ---------------------------------------------------------
+        with Pool(5) as p:
+            p.map(f, df_files_info.to_numpy())
 
     def create_gps_points_master(self, file_gps_path, file_struct_path):
         """
@@ -255,62 +264,63 @@ class LabelProcessing(object):
         output: None
         """
 
-        with open(file_gps_path, 'wb') as csvfile:
+        with open(file_gps_path, 'w') as csvfile:
             seg_writer = csv.writer(csvfile, delimiter=',')
             seg_writer.writerow([SEG_ID_STR, MODE_STR, LATITUDE_STR, LONGITUDE_STR,DATE_STR,TIME_STR])
             
-            # Open file with directory/files information
-            df_files_info = pd.read_csv(file_struct_path)
-        
-            # Search each labeled segment for its corresponsing GPS data
-            # ---------------------------------------------------------
-            for i, row_lbl in self.df_labels.iterrows():
-        
-                #Get the segment's start and end time to search for
-                starttime_to_search = row_lbl[START_TIMESTAMP_STR]
-                endtime_to_search = row_lbl[END_TIMESTAMP_STR]
-        
-                dir_searched = df_files_info[df_files_info[DIRECTORY_STR] == row_lbl[DIRECTORY_STR]]
-        
-                f_file = np.logical_and(starttime_to_search < dir_searched.end_time_timestamp, 
-                                        endtime_to_search > dir_searched.start_time_timestamp)
-        
-                res_file = f_file[f_file == True]
-        
-                if len(res_file) == 0:
-                    print "  >>No points found for ", row_lbl[START_TIME_STR]
-        
-                elif len(res_file) == 1:
-                    idx = f_file[f_file == True].index
-                    in_directory = os.path.join(row_lbl[DIRECTORY_STR],TRAJECTORY_STR)
-                    file_path = os.path.join(in_directory, df_files_info.loc[idx[0], FILENAME_STR])
-        
-                    # Now open the file
-                    f_gps = pd.read_csv(file_path, skiprows=6, header=None)
-                    
-                    # Get timestamp of each GPS point
-                    f_gps[TIMESTAMP_GPS_STR] = map(self.dt_ymd_format2_to_timestamp_since_epoch, f_gps[5] + " " + f_gps[6])
-                    
-                    #Mark as TRUE all timesstamps, such that t_start < timestamp < t_end
-                    f_gps[VALID_GPS_MASK_STR] = np.logical_and(f_gps[TIMESTAMP_GPS_STR]>= starttime_to_search, 
-                                                             f_gps[TIMESTAMP_GPS_STR]<= endtime_to_search)
-        
-                    #Loop over data
-                    for i, row_gps in f_gps.iterrows():
-        
-                        #Only get data for valid GPS data points
-                        if row_gps[VALID_GPS_MASK_STR] == True:
-                            seg_writer.writerow([row_lbl[SID_STR],
-                                                 row_lbl[TRANS_MODE_STR], 
-                                                 row_gps[0], 
-                                                 row_gps[1],
-                                                 row_gps[5],
-                                                 row_gps[6]])
+        # Open file with directory/files information
+        df_files_info = pd.read_csv(file_struct_path)
+    
+        # Search each labeled segment for its corresponsing GPS data
+        # ---------------------------------------------------------
+        for i, row_lbl in self.df_labels.iterrows():
+    
+            #Get the segment's start and end time to search for
+            starttime_to_search = row_lbl[START_TIMESTAMP_STR]
+            endtime_to_search = row_lbl[END_TIMESTAMP_STR]
+    
+            dir_searched = df_files_info[df_files_info[DIRECTORY_STR] == row_lbl[DIRECTORY_STR]]
+    
+            f_file = np.logical_and(starttime_to_search < dir_searched.end_time_timestamp, 
+                                    endtime_to_search > dir_searched.start_time_timestamp)
+    
+            res_file = f_file[f_file == True]
+    
+            if len(res_file) == 0:
+                print( "  >>No points found for ", row_lbl[START_TIME_STR])
+    
+            elif len(res_file) == 1:
+                idx = f_file[f_file == True].index
+                in_directory = os.path.join(row_lbl[DIRECTORY_STR],TRAJECTORY_STR)
+                file_path = os.path.join(in_directory, df_files_info.loc[idx[0], FILENAME_STR])
+    
+                # Now open the file
+                f_gps = pd.read_csv(file_path, skiprows=6, header=None)
+                
+                # Get timestamp of each GPS point
+                # f_gps[TIMESTAMP_GPS_STR] = map(self.dt_ymd_format2_to_timestamp_since_epoch, f_gps[5] + " " + f_gps[6])
+                f_gps[TIMESTAMP_GPS_STR] = pd.to_datetime(f_gps[5] + " " + f_gps[6])
+                
+                #Mark as TRUE all timesstamps, such that t_start < timestamp < t_end
+                starttime_to_search_t = datetime.datetime.utcfromtimestamp(starttime_to_search)
+                endtime_to_search_t = datetime.datetime.utcfromtimestamp(endtime_to_search)
+                # f_gps[VALID_GPS_MASK_STR] = np.logical_and(f_gps[TIMESTAMP_GPS_STR]>= starttime_to_search, 
+                                                        #  f_gps[TIMESTAMP_GPS_STR]<= endtime_to_search)
+                                                # df[(df['date'] > '2013-01-01') & (df['date'] < '2013-02-01')]
+                f_gps[VALID_GPS_MASK_STR] = (f_gps[TIMESTAMP_GPS_STR] >=starttime_to_search_t) & (f_gps[TIMESTAMP_GPS_STR] <= endtime_to_search_t)
+                #Loop over data
+                resultdf = f_gps[f_gps[VALID_GPS_MASK_STR]]
+                resultdf.columns = [LATITUDE_STR, LONGITUDE_STR,'c2','c3','c4',DATE_STR,TIME_STR,'c7','c8']
+                resultdf[SEG_ID_STR] = row_lbl[SID_STR]
+                resultdf[MODE_STR] = row_lbl[TRANS_MODE_STR]
+                resultdf = resultdf[[SEG_ID_STR,MODE_STR,LATITUDE_STR, LONGITUDE_STR,DATE_STR,TIME_STR]]
+                resultdf.to_csv(file_gps_path, header=False, index=False, mode='a')
+
 
 # ================================================================
 # GPS Raw Data processing
 # ================================================================
-             
+
 if __name__ == "__main__":
     
     lp = LabelProcessing()                  # Create label processing object
@@ -319,4 +329,5 @@ if __name__ == "__main__":
     lp.save_to_csv("labels_master.csv")     # Save to CSV
 
     lp.search_trajectory_data("file_structure_master.csv")     # Search and save file structure for GPS data
+    # lp.label_df = pd.read_csv("labels_master.csv")
     lp.create_gps_points_master("gps_points_master.csv", "file_structure_master.csv")
