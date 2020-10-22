@@ -126,8 +126,8 @@ class ModelingProcessing(object):
                                                             test_size=TEST_SIZE,
                                                             random_state=0)
 
-        print "Training Set (X_train, y_train): ", X_train.shape, y_train.shape
-        print "Test Set (X_test, y_test): ", X_test.shape, self.y_test.shape
+        print( "Training Set (X_train, y_train): ", X_train.shape, y_train.shape)
+        print( "Test Set (X_test, y_test): ", X_test.shape, self.y_test.shape)
         
         
         #6: Create the final train and test set for the model
@@ -192,7 +192,7 @@ class ModelingProcessing(object):
         y_pred_class = self.rf.predict(self.X_test_final)
         confusion = confusion_matrix(self.y_test, y_pred_class)
         
-        print confusion
+        print( confusion)
         
         # Calculate data from confusion matrix for each transport method
         Total_instances = np.sum(confusion)
@@ -228,45 +228,45 @@ class ModelingProcessing(object):
         TN_walk = Total_instances - TP_walk - FN_walk - FP_walk
 
         # Print confusion matrix metrics for each transport method
-        print "-------------------------------------------------"
-        print "Total instances in confusion matrix: ", Total_instances
-        print "-------------------------------------------------"
-        print "Bike_predicted", Bike_predicted
-        print "Bike actuals: ", Bike_actuals
-        print ""
-        print "TP bike: ", TP_bike
-        print "TN bike: ", TN_bike
-        print "FP_bike", FP_bike
-        print "FN_bike", FN_bike
-        print ""
-        print "-------------------------------------------------"
-        print "Bus_predicted", Bus_predicted
-        print "Bus actuals: ", Bus_actuals
-        print ""
-        print "TP bus: ", TP_bus
-        print "TN bus: ", TN_bus
-        print "FP_bus", FP_bus
-        print "FN_bus", FN_bus
-        print ""
-        print "-------------------------------------------------"
-        print "Car_predicted", Car_predicted
-        print "Car actuals", Car_actuals
-        print ""
-        print "TP car: ", TP_car
-        print "TN car: ", TN_car
-        print "FP_car", FP_car
-        print "FN_car", FN_car
-        print ""
-        print "-------------------------------------------------"
-        print "Walk_predicted", Walk_predicted
-        print "Walk actuals", Walk_actuals
-        print ""
-        print "TP walk: ", TP_walk
-        print "TN walk: ", TN_walk
-        print "FP walk", FP_walk
-        print "FN walk", FN_walk
-        print ""
-        print "-------------------------------------------------"
+        print ("-------------------------------------------------")
+        print ("Total instances in confusion matrix: ", Total_instances)
+        print ("-------------------------------------------------")
+        print ("Bike_predicted", Bike_predicted)
+        print ("Bike actuals: ", Bike_actuals)
+        print ("")
+        print ("TP bike: ", TP_bike)
+        print ("TN bike: ", TN_bike)
+        print ("FP_bike", FP_bike)
+        print ("FN_bike", FN_bike)
+        print ("")
+        print ("-------------------------------------------------")
+        print ("Bus_predicted", Bus_predicted)
+        print ("Bus actuals: ", Bus_actuals)
+        print ("")
+        print ("TP bus: ", TP_bus)
+        print ("TN bus: ", TN_bus)
+        print ("FP_bus", FP_bus)
+        print ("FN_bus", FN_bus)
+        print ("")
+        print ("-------------------------------------------------")
+        print ("Car_predicted", Car_predicted)
+        print ("Car actuals", Car_actuals)
+        print ("")
+        print ("TP car: ", TP_car)
+        print ("TN car: ", TN_car)
+        print ("FP_car", FP_car)
+        print ("FN_car", FN_car)
+        print ("")
+        print ("-------------------------------------------------")
+        print ("Walk_predicted", Walk_predicted)
+        print ("Walk actuals", Walk_actuals)
+        print ("")
+        print ("TP walk: ", TP_walk)
+        print ("TN walk: ", TN_walk)
+        print ("FP walk", FP_walk)
+        print ("FN walk", FN_walk)
+        print ("")
+        print ("-------------------------------------------------")
 
         # Calculate metrics for PRECISION, RECALL, SPECIFICITY and FP_RATE for each transport method
         accuracy_model = (TP_bike + TP_bus + TP_car + TP_walk)/float(Total_instances)
@@ -292,29 +292,29 @@ class ModelingProcessing(object):
         walk_falsepositve_rate = FP_walk / float(TN_walk + FP_walk)        
         
         # Print calculated metrics
-        print "-------------------------------------------------"
-        print "Model accuracy:\t\t{0:.2f}".format(accuracy_model)
-        print "Model classific. error:\t{0:.2f}".format(1-accuracy_model)
-        print "-------------------------------------------------"
-        print "Bike recall (TP rate):\t{0:.2f}".format(bike_recall)
-        print "Bike FP Rate:\t\t{0:.2f}".format(bike_falsepositve_rate)
-        print "Bike precision:\t\t{0:.2f}".format(bike_precision)
-        print "Bike specif.\t\t{0:.2f}".format(bike_specificity)
-        print "-------------------------------------------------"
-        print "Bus recall (TP rate):\t{0:.2f}".format(bus_recall)
-        print "Bus FP Rate:\t\t{0:.2f}".format(bus_falsepositve_rate)
-        print "Bus precision:\t\t{0:.2f}".format(bus_precision)
-        print "Bus specif.:\t\t{0:.2f}".format(bus_specificity)
-        print "-------------------------------------------------"
-        print "Car recall (TP rate):\t{0:.2f}".format(car_recall)
-        print "Car FP Rate:\t\t{0:.2f}".format(car_falsepositve_rate)
-        print "Car precision:\t\t{0:.2f}".format(car_precision)
-        print "Car specif.:\t\t{0:.2f}".format(car_specificity)
-        print "-------------------------------------------------"
-        print "Walk recall (TP rate):\t{0:.2f}".format(walk_recall)
-        print "Walk FP Rate:\t\t{0:.2f}".format(walk_falsepositve_rate)
-        print "Walk precision:\t\t{0:.2f}".format(walk_precision)
-        print "Walk specif.:\t\t{0:.2f}".format(walk_specificity)
+        print( "-------------------------------------------------")
+        print( "Model accuracy:\t\t{0:.2f}".format(accuracy_model))
+        print( "Model classific. error:\t{0:.2f}".format(1-accuracy_model))
+        print( "-------------------------------------------------")
+        print( "Bike recall (TP rate):\t{0:.2f}".format(bike_recall))
+        print( "Bike FP Rate:\t\t{0:.2f}".format(bike_falsepositve_rate))
+        print( "Bike precision:\t\t{0:.2f}".format(bike_precision))
+        print( "Bike specif.\t\t{0:.2f}".format(bike_specificity))
+        print( "-------------------------------------------------")
+        print( "Bus recall (TP rate):\t{0:.2f}".format(bus_recall))
+        print( "Bus FP Rate:\t\t{0:.2f}".format(bus_falsepositve_rate))
+        print( "Bus precision:\t\t{0:.2f}".format(bus_precision))
+        print( "Bus specif.:\t\t{0:.2f}".format(bus_specificity))
+        print( "-------------------------------------------------")
+        print( "Car recall (TP rate):\t{0:.2f}".format(car_recall))
+        print( "Car FP Rate:\t\t{0:.2f}".format(car_falsepositve_rate))
+        print( "Car precision:\t\t{0:.2f}".format(car_precision))
+        print( "Car specif.:\t\t{0:.2f}".format(car_specificity))
+        print( "-------------------------------------------------")
+        print( "Walk recall (TP rate):\t{0:.2f}".format(walk_recall))
+        print( "Walk FP Rate:\t\t{0:.2f}".format(walk_falsepositve_rate))
+        print( "Walk precision:\t\t{0:.2f}".format(walk_precision))
+        print( "Walk specif.:\t\t{0:.2f}".format(walk_specificity))
 
     def pickel_model(self, pickle_path):
         """
@@ -335,10 +335,10 @@ if __name__ == "__main__":
     mp.model()                                      # Create model
 
     acc_score = mp.get_accuracy_score()             # Get accuracy score
-    print "Accuracy Score: ", acc_score
+    print( "Accuracy Score: ", acc_score)
     
     null_acc_score = mp.get_null_accuracy_score()   # Get NULL accuracy score
-    print "Null Accuracy Score: ", null_acc_score
+    print( "Null Accuracy Score: ", null_acc_score)
     
     mp.print_info_on_confusion_matrix()             # Print info on confusion matrix
     
